@@ -1,0 +1,16 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=4596
+
+verilog_auto_testbench is a plugin that enables you to fast  generate a testbench file. 
+Base on hdl_plugin.vim by chengyong.
+http://vim.wendal.net/scripts/script.php?script_id=3420
+
+ When you type the given hot-key,testbench automatically written to file, and opens below the current window.
+
+Hot-key: ,tb
+
+Currently does not support verilog 2001 port declaration method,like this:
+module test 
+(
+         input   xxxx;
+        output reg xxxx;
+)
