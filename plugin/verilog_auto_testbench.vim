@@ -301,7 +301,11 @@ function HDL_Inport_Part(lang)
         let i = 0
         while i < s:port_cout 
             if s:direction[i] == "in"
-                let inport_part = inport_part."reg\t\t\t\t".s:port[i].";\n"
+                if s:type[i] =~ '\<std_logic_vector\>'
+                    let inport_part = inport_part."reg\t\t".HDL_Change2vlog(s:type[i])."\t".s:port[i].";\n"
+                else 
+                    let inport_part = inport_part."reg\t\t\t\t".s:port[i].";\n"
+                endif
             endif
             let i = i + 1
         endwhile
@@ -326,7 +330,11 @@ function HDL_Outport_Part(lang)
         let i = 0
         while i < s:port_cout 
             if s:direction[i] == "out"
-                let outport_part = outport_part."wire\t\t\t".s:port[i].";\n"
+                if s:type[i] =~ '\<std_logic_vector\>'
+                    let outport_part = outport_part."wire\t".HDL_Change2vlog(s:type[i])."\t".s:port[i].";\n"
+                else 
+                    let outport_part = outport_part."wire\t\t\t".s:port[i].";\n"
+                endif
             endif
             let i = i + 1
         endwhile
@@ -351,7 +359,11 @@ function HDL_Inoutport_Part(lang)
         let i = 0
         while i < s:port_cout 
             if s:direction[i] == "inout"
+                if s:type[i] =~ '\<std_logic_vector\>'
+                    let inoutport_part = inoutport_part."wire\t".HDL_Change2vlog(s:type[i])."\t".s:port[i].";\n"
+                else 
                     let inoutport_part = inoutport_part."wire\t\t\t".s:port[i].";\n"
+                endif
             endif
             let i = i + 1
         endwhile
@@ -425,32 +437,32 @@ function HDL_Tb_Build(type)
     let all_part = entity_part.architecture_part.component_part.inport_part.outport_part
                 \.inoutport_part.constant_part.clock_part.simulus_part."end\n\n".instant_part."endmodule\n"
 "    检测文件是否已经存在 
-    if filewritable(tb_file_name) 
-        let choice = confirm("The testbench file has been exist.\nSelect \"Open\" to open existed file.".
-                    \"\nSelect \"Change\" to replace it.\nSelect \"Cancel\" to Cancel this operation.",
-                    \"&Open\nCh&ange\n&Cancel")
-        if choice == 0
-            echo "\"Create a Testbench file\" be Canceled!"
-            return
-        elseif choice == 1
-            exe "bel sp ".tb_file_name
-            "exe "tabe".tb_file_name
-            return
-        elseif choice == 2
-            if delete(tb_file_name) 
-                echohl ErrorMsg
-                echo    "The testbench file already exists.But now can't Delete it!"
-                echohl None
-                return
-            else 
-                echo "The testbench file already exists.Delete it and recreat a new one!"
-            endif
-        else 
-            echo "\"Create a Testbench file\" be Canceled!"
-            return
-        endif
-    endif
+    "if filewritable(tb_file_name) 
+        "let choice = confirm("The testbench file has been exist.\nSelect \"Open\" to open existed file.".
+                    "\"\nSelect \"Change\" to replace it.\nSelect \"Cancel\" to Cancel this operation.",
+                    "\"&Open\nCh&ange\n&Cancel")
+        "if choice == 0
+            "echo "\"Create a Testbench file\" be Canceled!"
+            "return
+        "elseif choice == 1
+            "exe "bel sp ".tb_file_name
+            "return
+        "elseif choice == 2
+            "if delete(tb_file_name) 
+                "echohl ErrorMsg
+                "echo    "The testbench file already exists.But now can't Delete it!"
+                "echohl None
+                "return
+            "else 
+                "echo "The testbench file already exists.Delete it and recreat a new one!"
+            "endif
+        "else 
+            "echo "\"Create a Testbench file\" be Canceled!"
+            "return
+        "endif
+    "endif
     exe "bel sp ".tb_file_name
+    exe "normal ggVGd"
     silent put! =all_part
     if search('\<rst\>.*=') != 0
         exe "normal f0r1"
